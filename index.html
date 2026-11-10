@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel de Influenciadores</title>
+<style>
+:root{
+  --bg:#f5f6f8; --card:#fff; --ink:#16181d; --mut:#667085; --line:#e4e7ec;
+  --ok:#12805c; --ok-bg:#d9f2e6; --no:#c0392b; --no-bg:#fbe1dd; --pend:#a15c00; --pend-bg:#fdecc8;
+  --vazio:#eef0f3; --acc:#3451d1; --acc-bg:#e6eaff; --warn:#b42318;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0f1115; --card:#181b21; --ink:#eceef2; --mut:#98a2b3; --line:#2a2f38;
+  --ok:#4fd1a1; --ok-bg:#12382c; --no:#ff8a7a; --no-bg:#45201c; --pend:#f5c264; --pend-bg:#43310f;
+  --vazio:#22262e; --acc:#8fa2ff; --acc-bg:#232a52; --warn:#ff8a7a;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+h1{font-size:22px;margin:0}
+.fonte{color:var(--mut);font-size:12px;margin-top:4px}
+.fonte b.ao-vivo{color:var(--ok)} .fonte b.copia{color:var(--pend)}
+button,select,input{font:inherit;color:inherit}
+.btn{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--acc)}
+a.btn{color:inherit;display:inline-block}
+.btn.on{background:var(--acc-bg);border-color:var(--acc);color:var(--acc);font-weight:600}
+.filtros{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:16px}
+.filtros label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.filtros input,.filtros select{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-width:0}
+.filtros input[type=number]{width:70px}
+.atalhos{display:flex;gap:6px;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi .v{font-size:26px;font-weight:700;line-height:1.1}
+.kpi .l{color:var(--mut);font-size:12px;margin-top:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px}
+.card h2{font-size:14px;margin:0 0 10px}
+.evol{display:flex;gap:4px;align-items:flex-end;height:110px}
+.evol .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0;cursor:pointer}
+.evol .bar{width:100%;max-width:38px;background:var(--acc);border-radius:4px 4px 0 0;min-height:2px}
+.evol .pc{font-size:10px;color:var(--mut)} .evol .d{font-size:10px;color:var(--mut);margin-top:3px}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.tabs .sp{flex:1}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--card)}
+th.num,td.num{text-align:right}
+tbody tr:hover{background:var(--bg)}
+tr.clic{cursor:pointer}
+.pos{font-weight:700;color:var(--mut);width:34px}
+.pos.top{color:var(--acc)}
+.nome{font-weight:600}
+.ig{color:var(--mut);font-size:12px;text-decoration:none} .ig:hover{color:var(--acc)}
+.nota{display:flex;align-items:center;gap:8px;min-width:150px}
+.nota b{width:30px;text-align:right}
+.trilho{flex:1;height:8px;background:var(--vazio);border-radius:4px;overflow:hidden}
+.trilho i{display:block;height:100%;background:var(--acc);border-radius:4px}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600}
+.tag.ok{background:var(--ok-bg);color:var(--ok)} .tag.no{background:var(--no-bg);color:var(--no)}
+.tag.pend{background:var(--pend-bg);color:var(--pend)} .tag.vz{background:var(--vazio);color:var(--mut)}
+.mut{color:var(--mut)}
+.cel{display:inline-flex;width:26px;height:26px;border-radius:6px;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.cel.S{background:var(--ok-bg);color:var(--ok)} .cel.N{background:var(--no-bg);color:var(--no)}
+.cel.P{background:var(--pend-bg);color:var(--pend)} .cel.V{background:var(--vazio);color:var(--mut)}
+.legenda{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:10px;align-items:center}
+.legenda span{display:inline-flex;gap:5px;align-items:center}
+.legenda .cel{width:16px;height:16px;font-size:10px}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);padding:0;width:min(960px,94vw);max-height:90vh}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.dlg{padding:18px}
+.dlg-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+.dlg h3{margin:0;font-size:18px}
+.cal td,.cal th{padding:3px;border:0;text-align:center;position:static}
+.cal th{font-size:10px;cursor:default} .cal td:first-child,.cal th:first-child{text-align:left;padding-right:10px;font-size:12px}
+.obs-l{margin:0;padding-left:18px} .obs-l li{margin:2px 0}
+.erro{background:var(--pend-bg);color:var(--pend);border-radius:10px;padding:10px 12px;margin-bottom:16px;display:none}
+@media (max-width:640px){th,td{padding:7px 6px}.kpi .v{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Painel de Influenciadores</h1>
+      <div class="fonte" id="fonte">Carregando dados…</div>
+    </div>
+    <div class="atalhos">
+      <button class="btn" id="btnAtualizar">↻ Atualizar dados</button>
+      <a class="btn" id="btnPlanilha" target="_blank" rel="noopener" style="text-decoration:none">Abrir planilha</a>
+    </div>
+  </header>
+
+  <div class="erro" id="erro"></div>
+
+  <div class="filtros">
+    <label>De <input type="date" id="fDe"></label>
+    <label>Até <input type="date" id="fAte"></label>
+    <div class="atalhos">
+      <button class="btn" data-per="7">Últimos 7 dias</button>
+      <button class="btn" data-per="0">Tudo</button>
+    </div>
+    <label>Entrega
+      <select id="fEnt">
+        <option value="-1">Todas as 4</option>
+        <option value="0">Aviãozinho 10h–14h</option>
+        <option value="1">Aviãozinho 14h–18h</option>
+        <option value="2">Aviãozinho 18h–22h</option>
+        <option value="3">Bet da Sorte</option>
+      </select>
+    </label>
+    <label title="Pontos descontados da nota por dia em que divulgou concorrente">Penalidade concorrente
+      <input type="number" id="fPen" min="0" max="50" value="5">
+    </label>
+    <label title="Quem tem menos dias avaliados que isso fica fora da classificação">Mín. dias avaliados
+      <input type="number" id="fMin" min="1" max="31" value="3">
+    </label>
+    <label style="flex:1;min-width:160px">Buscar <input type="search" id="fBusca" placeholder="Nome ou @"></label>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <h2>Influenciadores que postaram, por dia <span class="mut" style="font-weight:400">(clique num dia para ver o detalhe)</span></h2>
+    <div class="evol" id="evol"></div>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="btn on" data-tab="rank">Ranking</button>
+      <button class="btn" data-tab="dia">Visão do dia</button>
+      <button class="btn" data-tab="alertas">Alertas</button>
+      <span class="sp"></span>
+      <label id="diaSel" style="display:none" class="mut">Dia <input type="date" id="fDia" class="btn"></label>
+    </div>
+    <div class="scroll" id="conteudo"></div>
+    <div class="legenda">
+      <span><i class="cel S">✓</i> Postou</span><span><i class="cel N">✕</i> Não postou</span>
+      <span><i class="cel P">?</i> Pendente</span><span><i class="cel V">·</i> Sem registro</span>
+      <span>Nota = % das entregas cumpridas − penalidade × dias com concorrente. O dia de hoje pode estar incompleto.</span>
+    </div>
+  </div>
+</div>
+
+<dialog id="dlg"><div class="dlg" id="dlgCorpo"></div></dialog>
+
+<script>
+const SHEET_ID = "1Ysy2UZebudQeRQf0f0ZXOh-xqL3MzKS_xcPxeqSfMcU", GID = "1329181028";
+const URL_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
+const ENT = ["Aviãozinho 10h–14h","Aviãozinho 14h–18h","Aviãozinho 18h–22h","Bet da Sorte"];
+const ENT_CURTO = ["10–14","14–18","18–22","Bet"];
+/*SNAPSHOT*/const SNAPSHOT = null;
+
+let LINHAS = [], DATAS = [], aba = "rank", ordem = {col:"nota", dir:-1};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const brData = iso => iso ? iso.slice(8,10)+"/"+iso.slice(5,7) : "";
+const pct = (a,b) => b ? Math.round(a/b*100) : null;
+const pctTxt = v => v === null ? "—" : v + "%";
+
+function parseCSV(t){
+  const out=[]; let row=[], cur="", q=false;
+  for(let i=0;i<t.length;i++){
+    const c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){ row.push(cur); cur=""; }
+    else if(c==='\n'){ row.push(cur); out.push(row); row=[]; cur=""; }
+    else if(c!=='\r') cur+=c;
+  }
+  if(cur!==""||row.length){ row.push(cur); out.push(row); }
+  return out;
+}
+const sn = v => { v=(v||"").trim().toLowerCase(); return v==="sim"?"S":(v==="não"||v==="nao")?"N":v.startsWith("pend")?"P":""; };
+function normaliza(tab){
+  const out=[];
+  for(const r of tab.slice(1)){
+    const nome=(r[0]||"").trim(), m=(r[7]||"").trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if(!nome||!m) continue;
+    out.push({nome, key:nome.toUpperCase(), link:(r[1]||"").trim(),
+      s:[sn(r[2]),sn(r[3]),sn(r[4]),sn(r[5])], post:sn(r[6]),
+      data:`${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`, obs:(r[8]||"").trim()});
+  }
+  return out;
+}
+const avaliada = l => l.post==="S"||l.post==="N"||l.s.some(x=>x==="S"||x==="N");
+function concorrente(obs){
+  const o=obs.toLowerCase(); if(!o) return "";
+  const ch=/chines/.test(o), casa=/casa|aposta|esporte|bet/.test(o);
+  if(ch&&casa) return "Casa de apostas + plataforma chinesa";
+  if(ch) return "Plataforma chinesa";
+  if(casa||/outra|concorr/.test(o)) return "Outra casa de apostas";
+  return "";
+}
+
+async function carregar(){
+  $("fonte").textContent="Carregando dados…"; $("erro").style.display="none";
+  try{
+    const r=await fetch(URL_CSV,{cache:"no-store"}); if(!r.ok) throw new Error("HTTP "+r.status);
+    const t=await r.text(); if(t.trim().startsWith("<")) throw new Error("planilha não está pública");
+    LINHAS=normaliza(parseCSV(t));
+    if(!LINHAS.length) throw new Error("nenhuma linha válida");
+    $("fonte").innerHTML=`<b class="ao-vivo">● Ao vivo</b> — lido da planilha às ${new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}`;
+  }catch(e){
+    if(SNAPSHOT){
+      LINHAS=SNAPSHOT.linhas;
+      $("fonte").innerHTML=`<b class="copia">● Cópia salva</b> de ${esc(SNAPSHOT.em)}`;
+      $("erro").textContent=`Não consegui ler a planilha agora (${e.message}). Mostrando a cópia salva em ${SNAPSHOT.em}. Verifique a internet e se a planilha continua compartilhada como "qualquer pessoa com o link".`;
+    }else{
+      LINHAS=[]; $("fonte").textContent="Sem dados";
+      $("erro").textContent=`Não consegui ler a planilha (${e.message}).`;
+    }
+    $("erro").style.display="block";
+  }
+  DATAS=[...new Set(LINHAS.filter(l=>avaliada(l)||l.post==="P").map(l=>l.data))].sort();
+  if(DATAS.length){
+    if(!$("fDe").value||!DATAS.includes($("fDe").value)&&$("fDe").value<DATAS[0]) $("fDe").value=DATAS[0];
+    if(!$("fAte").dataset.manual) $("fAte").value=DATAS[DATAS.length-1];
+    if(!$("fDia").dataset.manual) $("fDia").value=ultimoDiaAvaliado();
+  }
+  render();
+}
+function ultimoDiaAvaliado(){
+  const d=[...new Set(LINHAS.filter(avaliada).map(l=>l.data))].sort();
+  return d[d.length-1]||DATAS[DATAS.length-1]||"";
+}
+function filtro(){
+  return {de:$("fDe").value||"0000", ate:$("fAte").value||"9999", ent:+$("fEnt").value,
+          pen:Math.max(0,+$("fPen").value||0), min:Math.max(1,+$("fMin").value||1), busca:$("fBusca").value.trim().toLowerCase()};
+}
+function agrega(f){
+  const m=new Map();
+  for(const l of LINHAS){
+    if(l.data<f.de||l.data>f.ate) continue;
+    let a=m.get(l.key);
+    if(!a){ a={key:l.key,nome:l.nome,link:l.link,dias:0,postou:0,feitas:0,poss:0,pend:0,conc:0,
+               porEnt:[[0,0],[0,0],[0,0],[0,0]],linhas:[]}; m.set(l.key,a); }
+    if(!a.link&&l.link) a.link=l.link;
+    a.linhas.push(l);
+    if(concorrente(l.obs)) a.conc++;
+    if(l.post==="P"){ a.pend++; continue; }
+    if(!avaliada(l)) continue;
+    a.dias++;
+    const idx=f.ent<0?[0,1,2,3]:[f.ent];
+    let fez=false;
+    l.s.forEach((v,i)=>{ if(v==="S"||v==="N"){ a.porEnt[i][1]++; if(v==="S") a.porEnt[i][0]++; } });
+    for(const i of idx){ const v=l.s[i]; if(v==="S"||v==="N"){ a.poss++; if(v==="S"){a.feitas++;fez=true;} } }
+    if(f.ent<0 ? (l.post==="S"||fez) : fez) a.postou++;
+  }
+  const arr=[...m.values()];
+  for(const a of arr){
+    a.linhas.sort((x,y)=>x.data<y.data?-1:1);
+    a.taxa=pct(a.feitas,a.poss);
+    a.nota=a.taxa===null?null:Math.max(0,a.taxa-f.pen*a.conc);
+    a.seq=0;
+    const av=a.linhas.filter(avaliada);
+    for(let i=av.length-1;i>=0;i--){
+      const l=av[i], fez=f.ent<0?(l.post==="S"||l.s.includes("S")):l.s[f.ent]==="S";
+      if(fez) break; a.seq++;
+    }
+    a.ig=(a.link.match(/instagram\.com\/([^/?#]+)/)||[])[1]||"";
+  }
+  for(const a of arr) a.class=a.nota!==null&&a.dias>=f.min;
+  arr.sort((x,y)=>(y.class-x.class)||(y.nota??-1)-(x.nota??-1)||y.feitas-x.feitas||x.nome.localeCompare(y.nome));
+  arr.forEach((a,i)=>a.pos=a.class?i+1:null);
+  return arr;
+}
+
+function render(){
+  const f=filtro(), ag=agrega(f);
+  // KPIs
+  const comDados=ag.filter(a=>a.class);
+  const feitas=ag.reduce((s,a)=>s+a.feitas,0), poss=ag.reduce((s,a)=>s+a.poss,0);
+  const dias=ag.reduce((s,a)=>s+a.dias,0), postou=ag.reduce((s,a)=>s+a.postou,0);
+  const kp=[
+    [ag.length,"Influenciadores no período"],
+    [pctTxt(pct(feitas,poss)),`Entregas cumpridas (${feitas} de ${poss})`],
+    [pctTxt(pct(postou,dias)),"Dias com pelo menos 1 postagem"],
+    [ag.reduce((s,a)=>s+a.conc,0),"Ocorrências de concorrente"],
+    [ag.reduce((s,a)=>s+a.pend,0),"Registros pendentes"],
+    [comDados.filter(a=>a.seq>=3).length,"Há 3+ dias sem postar"],
+  ];
+  $("kpis").innerHTML=kp.map(k=>`<div class="kpi"><div class="v">${k[0]}</div><div class="l">${esc(k[1])}</div></div>`).join("");
+  // Evolução
+  const porDia=new Map();
+  for(const a of ag) for(const l of a.linhas){ if(!avaliada(l)) continue;
+    const d=porDia.get(l.data)||[0,0]; d[1]++;
+    if(f.ent<0?(l.post==="S"||l.s.includes("S")):l.s[f.ent]==="S") d[0]++; porDia.set(l.data,d); }
+  const ds=[...porDia.keys()].sort();
+  $("evol").innerHTML=ds.length?ds.map(d=>{const [s,t]=porDia.get(d),p=pct(s,t);
+    return `<div class="col" data-dia="${d}" title="${brData(d)}: ${s} de ${t} postaram"><span class="pc">${p}%</span><div class="bar" style="height:${p*0.7}%"></div><span class="d">${brData(d)}</span></div>`}).join("")
+    :`<span class="mut">Sem dias avaliados no período.</span>`;
+  $("diaSel").style.display=aba==="dia"?"":"none";
+  const lista=f.busca?ag.filter(a=>a.nome.toLowerCase().includes(f.busca)||a.ig.toLowerCase().includes(f.busca.replace("@",""))):ag;
+  if(aba==="rank") renderRank(lista);
+  else if(aba==="dia") renderDia(f);
+  else renderAlertas(ag);
+}
+function nomeCel(a){
+  return `<span class="nome">${esc(a.nome)}</span>${a.ig?`<br><a class="ig" href="${esc(a.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">@${esc(a.ig)}</a>`:""}`;
+}
+function renderRank(lista){
+  const cols=[["pos","#",1],["nome","Influenciador",0],["nota","Nota",0],["e0",ENT_CURTO[0],1],["e1",ENT_CURTO[1],1],["e2",ENT_CURTO[2],1],["e3",ENT_CURTO[3],1],
+              ["postou","Dias com post",1],["seq","Dias seguidos sem postar",1],["conc","Concorrente",1],["pend","Pendentes",1]];
+  const val=(a,c)=>c==="nome"?a.nome:c[0]==="e"&&c.length===2?(pct(...a.porEnt[+c[1]])??-1):c==="pos"?(a.pos??9999):(a[c]??-1);
+  const l=[...lista].sort((x,y)=>{const a=val(x,ordem.col),b=val(y,ordem.col);
+    return (typeof a==="string"?a.localeCompare(b):a-b)*ordem.dir|| (x.pos??9999)-(y.pos??9999);});
+  $("conteudo").innerHTML=`<table><thead><tr>${cols.map(c=>`<th class="${c[2]?"num":""}" data-col="${c[0]}">${esc(c[1])}${ordem.col===c[0]?(ordem.dir>0?" ▲":" ▼"):""}</th>`).join("")}</tr></thead><tbody>${
+    l.map(a=>`<tr class="clic" data-key="${esc(a.key)}">
+      <td class="pos ${a.pos&&a.pos<=3?"top":""}">${a.pos??"—"}</td><td>${nomeCel(a)}</td>
+      <td>${a.nota===null?'<span class="tag vz">sem dados</span>':`<div class="nota"><b>${a.nota}</b><div class="trilho"><i style="width:${a.nota}%"></i></div></div>${a.class?"":'<span class="tag vz">poucos dias avaliados</span>'}`}</td>
+      ${a.porEnt.map(e=>`<td class="num">${pctTxt(pct(e[0],e[1]))}</td>`).join("")}
+      <td class="num">${a.postou}<span class="mut"> / ${a.dias}</span></td>
+      <td class="num">${a.seq>=3?`<span class="tag no">${a.seq}</span>`:a.seq}</td>
+      <td class="num">${a.conc?`<span class="tag pend">${a.conc}</span>`:"0"}</td>
+      <td class="num">${a.pend||0}</td></tr>`).join("")||`<tr><td colspan="11" class="mut">Nenhum influenciador encontrado.</td></tr>`}</tbody></table>`;
+}
+const celula=(v,pend)=>{const k=v||(pend?"P":"V");return `<i class="cel ${k}">${{S:"✓",N:"✕",P:"?",V:"·"}[k]}</i>`;};
+function renderDia(f){
+  const d=$("fDia").value;
+  let l=LINHAS.filter(x=>x.data===d);
+  if(f.busca) l=l.filter(x=>x.nome.toLowerCase().includes(f.busca)||x.link.toLowerCase().includes(f.busca.replace("@","")));
+  const peso=x=>x.post==="P"?1:!avaliada(x)?2:0;
+  l.sort((a,b)=>peso(a)-peso(b)||b.s.filter(v=>v==="S").length-a.s.filter(v=>v==="S").length||a.nome.localeCompare(b.nome));
+  const st=x=>x.post==="P"?'<span class="tag pend">Pendente</span>':!avaliada(x)?'<span class="tag vz">Sem registro</span>':(x.post==="S"||x.s.includes("S"))?'<span class="tag ok">Postou</span>':'<span class="tag no">Não postou</span>';
+  $("conteudo").innerHTML=`<table><thead><tr><th>Influenciador</th><th>Situação</th>${ENT_CURTO.map(e=>`<th>${e}</th>`).join("")}<th>Observações</th></tr></thead><tbody>${
+    l.map(x=>`<tr class="clic" data-key="${esc(x.key)}"><td class="nome">${esc(x.nome)}</td><td>${st(x)}</td>${x.s.map(v=>`<td>${celula(v,x.post==="P")}</td>`).join("")}<td style="white-space:normal">${concorrente(x.obs)?`<span class="tag pend">${esc(x.obs)}</span>`:esc(x.obs)}</td></tr>`).join("")
+    ||`<tr><td colspan="7" class="mut">Nenhum registro em ${brData(d)}.</td></tr>`}</tbody></table>`;
+}
+function renderAlertas(ag){
+  const sem=ag.filter(a=>a.seq>=3).sort((a,b)=>b.seq-a.seq), con=ag.filter(a=>a.conc).sort((a,b)=>b.conc-a.conc), pen=ag.filter(a=>a.pend).sort((a,b)=>b.pend-a.pend);
+  const bloco=(t,l,fn)=>`<h2 style="margin:14px 0 6px;font-size:14px">${t} <span class="mut">(${l.length})</span></h2>${l.length?`<table><tbody>${l.map(a=>`<tr class="clic" data-key="${esc(a.key)}"><td>${nomeCel(a)}</td><td class="num">${fn(a)}</td></tr>`).join("")}</tbody></table>`:'<p class="mut">Nenhum.</p>'}`;
+  $("conteudo").innerHTML=
+    bloco("Há 3 ou mais dias seguidos sem postar",sem,a=>`<span class="tag no">${a.seq} dias</span>`)+
+    bloco("Divulgaram concorrente no período",con,a=>`<span class="tag pend">${a.conc} ${a.conc>1?"dias":"dia"}</span>`)+
+    bloco("Com registros pendentes de conferência",pen,a=>`<span class="tag pend">${a.pend}</span>`);
+}
+function abrirFicha(key){
+  const f=filtro(), a=agrega(f).find(x=>x.key===key); if(!a) return;
+  const melhor=a.porEnt.map((e,i)=>[pct(e[0],e[1]),i]).filter(x=>x[0]!==null).sort((x,y)=>y[0]-x[0]);
+  const obs=a.linhas.filter(l=>l.obs);
+  $("dlgCorpo").innerHTML=`
+    <div class="dlg-top"><div><h3>${esc(a.nome)}</h3>${a.ig?`<a class="ig" href="${esc(a.link)}" target="_blank" rel="noopener">@${esc(a.ig)} ↗</a>`:""}</div>
+      <button class="btn" onclick="document.getElementById('dlg').close()">Fechar</button></div>
+    <div class="kpis">
+      <div class="kpi"><div class="v">${a.pos?a.pos+"º":"—"}</div><div class="l">Posição no ranking</div></div>
+      <div class="kpi"><div class="v">${a.nota??"—"}</div><div class="l">Nota (${a.feitas} de ${a.poss} entregas)</div></div>
+      <div class="kpi"><div class="v">${a.postou}<span class="mut" style="font-size:16px"> / ${a.dias}</span></div><div class="l">Dias com postagem</div></div>
+      <div class="kpi"><div class="v">${a.conc}</div><div class="l">Dias com concorrente</div></div>
+    </div>
+    ${melhor.length?`<p>Entrega mais forte: <b>${ENT[melhor[0][1]]}</b> (${melhor[0][0]}%) · mais fraca: <b>${ENT[melhor[melhor.length-1][1]]}</b> (${melhor[melhor.length-1][0]}%)</p>`:""}
+    <div class="scroll"><table class="cal"><thead><tr><th></th>${a.linhas.map(l=>`<th>${brData(l.data)}</th>`).join("")}</tr></thead><tbody>
+      ${ENT.map((e,i)=>`<tr><td>${e}</td>${a.linhas.map(l=>`<td>${celula(l.s[i],l.post==="P")}</td>`).join("")}</tr>`).join("")}
+    </tbody></table></div>
+    ${obs.length?`<h2 style="font-size:14px;margin:14px 0 6px">Observações</h2><ul class="obs-l">${obs.map(l=>`<li><b>${brData(l.data)}</b> — ${esc(l.obs)}</li>`).join("")}</ul>`:""}`;
+  $("dlg").showModal();
+}
+
+// Eventos
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{aba=b.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("on",x===b));render();});
+document.querySelectorAll("[data-per]").forEach(b=>b.onclick=()=>{
+  const n=+b.dataset.per, fim=ultimoDiaAvaliado();
+  if(!DATAS.length) return;
+  if(n){ const d=new Date(fim+"T12:00:00"); d.setDate(d.getDate()-n+1); $("fDe").value=d.toISOString().slice(0,10); $("fAte").value=fim; }
+  else { $("fDe").value=DATAS[0]; $("fAte").value=DATAS[DATAS.length-1]; }
+  render();
+});
+["fDe","fEnt","fPen","fMin","fBusca"].forEach(id=>$(id).oninput=render);
+$("fAte").oninput=()=>{$("fAte").dataset.manual=1;render();};
+$("fDia").oninput=()=>{$("fDia").dataset.manual=1;render();};
+$("btnAtualizar").onclick=carregar;
+$("btnPlanilha").href=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit#gid=${GID}`;
+$("conteudo").onclick=e=>{
+  const th=e.target.closest("th[data-col]");
+  if(th){ const c=th.dataset.col; ordem=ordem.col===c?{col:c,dir:-ordem.dir}:{col:c,dir:(c==="nome"||c==="pos")?1:-1}; render(); return; }
+  const tr=e.target.closest("tr[data-key]"); if(tr) abrirFicha(tr.dataset.key);
+};
+$("evol").onclick=e=>{const c=e.target.closest("[data-dia]"); if(!c) return;
+  $("fDia").value=c.dataset.dia; $("fDia").dataset.manual=1; document.querySelector('[data-tab="dia"]').click();};
+$("dlg").onclick=e=>{ if(e.target===$("dlg")) $("dlg").close(); };
+carregar();
+</script>
+</body>
+</html>
