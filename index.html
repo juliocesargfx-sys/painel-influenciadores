@@ -90,7 +90,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       <div class="fonte" id="fonte">Carregando dados…</div>
     </div>
     <div class="atalhos">
-      <button class="btn" id="btnAtualizar">↻ Atualizar dados</button>
+      <button class="btn" id="btnAtualizar" title="A página também se atualiza sozinha a cada 2 minutos">↻ Atualizar dados</button>
       <a class="btn" id="btnPlanilha" target="_blank" rel="noopener" style="text-decoration:none">Abrir planilha</a>
     </div>
   </header>
@@ -125,7 +125,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   <div class="kpis" id="kpis"></div>
 
   <div class="card">
-    <h2>Influenciadores que postaram, por dia <span class="mut" style="font-weight:400">(clique num dia para ver o detalhe)</span></h2>
+    <h2>Influenciadores que postaram, por dia <span class="mut" style="font-weight:400">(% dos monitorados, como na aba Histórico; clique num dia para ver o detalhe)</span></h2>
     <div class="evol" id="evol"></div>
   </div>
 
@@ -287,12 +287,12 @@ function render(){
   $("kpis").innerHTML=kp.map(k=>`<div class="kpi"><div class="v">${k[0]}</div><div class="l">${esc(k[1])}</div></div>`).join("");
   // Evolução
   const porDia=new Map();
-  for(const a of ag) for(const l of a.linhas){ if(!avaliada(l)) continue;
+  for(const a of ag) for(const l of a.linhas){ if(!avaliada(l)&&l.post!=="P") continue;
     const d=porDia.get(l.data)||[0,0]; d[1]++;
     if(f.ent<0?(l.post==="S"||l.s.includes("S")):l.s[f.ent]==="S") d[0]++; porDia.set(l.data,d); }
   const ds=[...porDia.keys()].sort();
   $("evol").innerHTML=ds.length?ds.map(d=>{const [s,t]=porDia.get(d),p=pct(s,t);
-    return `<div class="col" data-dia="${d}" title="${brData(d)}: ${s} de ${t} postaram"><span class="pc">${p}%</span><div class="bar" style="height:${p*0.7}%"></div><span class="d">${brData(d)}</span></div>`}).join("")
+    return `<div class="col" data-dia="${d}" title="${brData(d)}: ${s} de ${t} monitorados postaram"><span class="pc">${p}%</span><div class="bar" style="height:${p*0.7}%"></div><span class="d">${brData(d)}</span></div>`}).join("")
     :`<span class="mut">Sem dias avaliados no período.</span>`;
   $("diaSel").style.display=aba==="dia"?"":"none";
   const lista=f.busca?ag.filter(a=>a.nome.toLowerCase().includes(f.busca)||a.ig.toLowerCase().includes(f.busca.replace("@",""))):ag;
@@ -382,7 +382,12 @@ $("conteudo").onclick=e=>{
 $("evol").onclick=e=>{const c=e.target.closest("[data-dia]"); if(!c) return;
   $("fDia").value=c.dataset.dia; $("fDia").dataset.manual=1; document.querySelector('[data-tab="dia"]').click();};
 $("dlg").onclick=e=>{ if(e.target===$("dlg")) $("dlg").close(); };
-carregar();
+let ultimaLeitura=0;
+const recarregar=()=>{ultimaLeitura=Date.now();return carregar();};
+$("btnAtualizar").onclick=recarregar;
+setInterval(()=>{ if(!document.hidden) recarregar(); },2*60*1000);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&Date.now()-ultimaLeitura>30000) recarregar(); });
+recarregar();
 </script>
 </body>
 </html>
